@@ -112,6 +112,7 @@ namespace Supercyan.AnimalPeopleSample
             {
                 m_jumpInput = true;
             }
+
         }
 
         private void FixedUpdate()
