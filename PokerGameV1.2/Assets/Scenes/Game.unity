@@ -2870,7 +2870,7 @@ GameObject:
   m_Component:
   - component: {fileID: 697809556}
   m_Layer: 0
-  m_Name: GameTable (2)
+  m_Name: GameTable northeast
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3064,7 +3064,7 @@ GameObject:
   m_Component:
   - component: {fileID: 777726921}
   m_Layer: 0
-  m_Name: GameTable (1)
+  m_Name: GameTable west
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3491,7 +3491,7 @@ GameObject:
   m_Component:
   - component: {fileID: 911656693}
   m_Layer: 0
-  m_Name: GameTable (3)
+  m_Name: GameTable southeast
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3875,8 +3875,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 594186936958880221, guid: cf856591953c8ed4bad3e9d863896e12, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 975159499}
   m_SourcePrefab: {fileID: 100100000, guid: cf856591953c8ed4bad3e9d863896e12, type: 3}
+--- !u!1 &975159498 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 594186936958880221, guid: cf856591953c8ed4bad3e9d863896e12, type: 3}
+  m_PrefabInstance: {fileID: 975159497}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &975159499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 975159498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f01e8f5649a4e5c47ae0a0785a977661, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardPrefabs: []
+  tableCentre: {fileID: 0}
+  currentCard: 0
+  playerCards: []
+  dealerCards: []
 --- !u!1001 &1005836771
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6286,7 +6311,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1833138958}
   m_Layer: 0
-  m_Name: GameTable
+  m_Name: GameTable centre
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
