@@ -16,7 +16,7 @@ public class PauseScreen : MonoBehaviour
 
     public void ResumeGame() {
       currentStatus = false;
-      gameObject.SetActive(currentStatus);
+      pauseScreenUI.SetActive(currentStatus);
     }
 
     // Start is called before the first frame update
