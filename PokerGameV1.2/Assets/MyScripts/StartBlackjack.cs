@@ -7,14 +7,10 @@ public class StartBlackjack : MonoBehaviour
 
     public GameObject interactPrompt;
     public DeckManager deckManager;
-    public GameObject hitButton;
-    public GameObject standButton;
 
     // Start is called before the first frame update
     void Start()
     {
-        hitButton.SetActive(false);
-        standButton.SetActive(false);
         interactPrompt.SetActive(false);
     }
 
@@ -25,8 +21,6 @@ public class StartBlackjack : MonoBehaviour
         {
             Debug.Log("Game Started");
             interactPrompt.SetActive(false);
-            hitButton.SetActive(true);
-            standButton.SetActive(true);
             deckManager.StartGame();
         }
     }
