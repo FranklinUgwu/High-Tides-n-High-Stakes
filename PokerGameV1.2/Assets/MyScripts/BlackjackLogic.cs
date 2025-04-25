@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DeckManager : MonoBehaviour
 {
     public List<GameObject> cardPrefabs;        // put all the cards in here in unity in order
+    private List<GameObject> shuffled_cards = new List<GameObject>();
     public Transform tableCentre;
     public int currentCard = 0;                 // keep track of which card to draw next
     private int playerCurrency;
@@ -15,9 +17,9 @@ public class DeckManager : MonoBehaviour
     public List<GameObject> dealerCards;        //dealer deck
     private bool playerTurnActive = false;
     private bool playerChoseToHit = false;
-    private bool waitingForPlayer = false;
+    private bool waitingForPlayer = true;
     //put player current money here later
-    void Start()
+    public void StartGame()
     {
         shuffle();
         Deal();
@@ -25,19 +27,20 @@ public class DeckManager : MonoBehaviour
 
     void Deal()// set rotation 270=face up, 90=face down
     {
+        Debug.Log("check");
         //player
         Vector3 cardPos = new Vector3(0.1f, 1.3f, 0.9f);
         Quaternion rotation = Quaternion.Euler(270f, 0f, 0f);
         drawCard(cardPos, rotation, true);
         //decrements current card to add the card that was just drawn to the player/dealer decks
         incrementCurrentCard(false);
-        playerCards.Add(cardPrefabs[currentCard]);
+        playerCards.Add(shuffled_cards[currentCard]);
         incrementCurrentCard(true);
         cardPos = new Vector3(-0.1f, 1.3f, 0.9f);
         rotation = Quaternion.Euler(270, 0, 0);
         drawCard(cardPos, rotation, true);
         incrementCurrentCard(false);
-        playerCards.Add(cardPrefabs[currentCard]);
+        playerCards.Add(shuffled_cards[currentCard]);
         incrementCurrentCard(true);
 
         //dealer
@@ -45,24 +48,25 @@ public class DeckManager : MonoBehaviour
         rotation = Quaternion.Euler(270f, 0f, 0f);
         drawCard(cardPos, rotation, false);
         incrementCurrentCard(false);
-        dealerCards.Add(cardPrefabs[currentCard]);
+        dealerCards.Add(shuffled_cards[currentCard]);
         incrementCurrentCard(true);
         cardPos = new Vector3(-0.05f, 1.3f, 0.5f);
         rotation = Quaternion.Euler(90, 0, 0);
-        drawCard(cardPos, rotation, false);
+        GameObject hiddenDealerCard = drawCard(cardPos, rotation, false);
         incrementCurrentCard(false);
-        dealerCards.Add(cardPrefabs[currentCard]);
+        dealerCards.Add(shuffled_cards[currentCard]);
         incrementCurrentCard(true);
 
-        player_turn();
+        StartCoroutine(player_turn(hiddenDealerCard));
     }
     // 1.3f = height to have card resting on table when offset from tableCenter
     // draw a random card (requires deck to have been shuffled to be random)
-    void drawCard(Vector3 cardPos, Quaternion rotation, bool isPlayer)
+    GameObject drawCard(Vector3 cardPos, Quaternion rotation, bool isPlayer)
     {
         cardPos = tableCentre.position + cardPos;
-        GameObject card = Instantiate(cardPrefabs[currentCard], cardPos, rotation, tableCentre);
+        GameObject card = Instantiate(shuffled_cards[currentCard], cardPos, rotation, tableCentre);
         incrementCurrentCard(true);
+        return card;
     }
     void incrementCurrentCard(bool upDown) //false to decrease counter true to increase it
     {
@@ -83,25 +87,29 @@ public class DeckManager : MonoBehaviour
             }
         }
     }
-    private IEnumerator player_turn()
+    private IEnumerator player_turn(GameObject hiddenDealerCard)
     {
         bool bust = false;
         bool blackjack = false;
-
-        while (playerTurnActive)
+        playerTurnActive = true;
+        Debug.Log("turn");
+        do
         {
             player_score = calc_score(playerCards);
-
             if (player_score == 21)
             {
-                break;
+                playerTurnActive = false;
+                break;//check if bust
             }
 
+            while (waitingForPlayer)
+            {
+                yield return new WaitForSeconds(0.1f);//wait for player input
+            }
             waitingForPlayer = true;
-            yield return new WaitUntil(() => waitingForPlayer == false); // Wait for player to click
-
             if (playerChoseToHit)
             {
+                Debug.Log("hit");
                 Vector3 nextCardPos = new Vector3(0.1f + 0.2f * playerCards.Count, 1.3f, 0.9f);  // shift card position
                 Quaternion rot = Quaternion.Euler(270, 0, 0);
                 drawCard(nextCardPos, rot, true);
@@ -110,27 +118,34 @@ public class DeckManager : MonoBehaviour
                 incrementCurrentCard(true);
 
                 player_score = calc_score(playerCards);
-
+                Debug.Log(player_score);
                 if (player_score > 21)
                 {
                     bust = true;
+                    playerTurnActive = false;
                     break;
                 }
             }
             else
             {
+                playerTurnActive = false;
                 break; // Player chose Stand
             }
         }
-        /*
-        while (player_turn == true);
-        if (player_score == 21 && player.Count() == 2)
+        while (playerTurnActive);
+
+        if (player_score == 21)
         {
             blackjack = true;
         }
-        dealer[0].toggle_visable();
-        dealer_score = calc_score(dealer);
-        Display.Refresh(dealer, player, dealer_score, player_score);
+        Destroy(hiddenDealerCard);
+        Vector3 cardPos = new Vector3(-0.05f, 1.3f, 0.5f);
+        Quaternion rotation = Quaternion.Euler(270, 0, 0);
+        drawCard(cardPos, rotation, false);
+        incrementCurrentCard(false);
+        dealerCards.Add(shuffled_cards[currentCard]);
+        incrementCurrentCard(true);
+        dealer_score = calc_score(dealerCards);
 
         if (bust == false)
         {
@@ -138,13 +153,90 @@ public class DeckManager : MonoBehaviour
         }
         else
         {
-            Display.lose_screen();
-        }*/
+            //Display.lose_screen();
+            Debug.Log("lose");
+        }
+    }
+    private void dealer_turn(bool player_blackjack)
+    {
+        bool dealer_blackjack = false;
+        bool bust = false;
+        while (dealer_score < 17 && player_blackjack == false)
+        {
+            System.Threading.Thread.Sleep(500);
+            Vector3 cardPos = new Vector3(-0.15f, 1.3f, 0.5f);
+            Quaternion rotation = Quaternion.Euler(270, 0, 0);
+            drawCard(cardPos, rotation, false);
+            incrementCurrentCard(false);
+            dealerCards.Add(shuffled_cards[currentCard]);
+            incrementCurrentCard(true);
+            dealer_score = calc_score(dealerCards);
+        }
+        if (dealer_score > 21)
+        {
+            bust = true;
+        }
+        if (bust == false)
+        {
+            if (dealerCards.Count() == 2 && dealer_score == 21)
+            {
+                dealer_blackjack = true;
+            }
+            if (player_blackjack == true && dealer_blackjack == true)
+            {
+                //Display.push_screen();
+            }
+            else if (player_blackjack == true && dealer_blackjack == false)
+            {
+                //Display.win_screen();
+            }
+            else if (player_blackjack == false && dealer_blackjack == true)
+            {
+                //Display.lose_screen();
+            }
+            else if (player_score > dealer_score)
+            {
+                //Display.win_screen();
+            }
+            else if (player_score == dealer_score && player_blackjack == false && dealer_blackjack == false)
+            {
+                //Display.push_screen();
+            }
+            else
+            {
+                //Display.lose_screen();
+            }
+        }
+        else
+        {
+            //Display.win_screen();
+        }
 
     }
-    void shuffle()
+    public void OnPlayerHit()
     {
+        Debug.Log("hitbutton");
+        playerChoseToHit = true;
+        waitingForPlayer = false;
+    }
 
+    public void OnPlayerStand()
+    {
+        playerChoseToHit = false;
+        waitingForPlayer = false;
+    }
+    public void shuffle()
+    {
+        System.Random RNG = new System.Random();
+        List<GameObject> list = new List<GameObject>(cardPrefabs);
+        shuffled_cards.Clear();
+
+        for (int i = 0; i < 52; i++)
+        {
+            int num = RNG.Next(0, list.Count());
+            shuffled_cards.Add(list[num]);
+            list.RemoveAt(num);
+        }
     }
     private int calc_score(List<GameObject> cards)
     {
@@ -153,20 +245,17 @@ public class DeckManager : MonoBehaviour
         {
             CardData data = c.GetComponent<CardData>();
             Quaternion flip = c.transform.rotation;
-            if (flip == Quaternion.Euler(270, 0, 0))
+            if (data.value == 1)
             {
-                if (data.value == 1)
-                {
-                    count += 11;
-                }
-                else if (data.value > 10)
-                {
-                    count += 10;
-                }
-                else
-                {
-                    count += data.value;
-                }
+                count += 11;
+            }
+            else if (data.value > 10)
+            {
+                count += 10;
+            }
+            else
+            {
+                count += data.value;
             }
         }
         if (count > 21)
@@ -182,16 +271,5 @@ public class DeckManager : MonoBehaviour
             }
         }
         return count;
-    }
-    public void OnPlayerHit()
-    {
-        playerChoseToHit = true;
-        waitingForPlayer = false;
-    }
-
-    public void OnPlayerStand()
-    {
-        playerChoseToHit = false;
-        waitingForPlayer = false;
     }
 }
