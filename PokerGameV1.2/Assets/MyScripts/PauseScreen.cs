@@ -9,9 +9,15 @@ public class PauseScreen : MonoBehaviour
     public bool currentStatus = true;
 
     public GameObject pauseScreenUI;
+    public GameObject settingsCanvas;
+    public GameObject hudScreenUI;
 
     public void GoToScene(string sceneName) {
       SceneManager.LoadScene(sceneName);
+    }
+
+    public void GoToSettings() {
+      settingsCanvas.SetActive(true);
     }
 
     public void ResumeGame() {
@@ -22,6 +28,7 @@ public class PauseScreen : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
     }
 
     // Update is called once per frame
@@ -38,11 +45,13 @@ public class PauseScreen : MonoBehaviour
 
     void Resume() {
       pauseScreenUI.SetActive(false);
+      hudScreenUI.SetActive(true);
       currentStatus = false;
     }
 
     void Pause() {
       pauseScreenUI.SetActive(true);
+      hudScreenUI.SetActive(false);
       currentStatus = true;
     }
 }

@@ -7,13 +7,17 @@ public class VolumeControl : MonoBehaviour
 {
 
     public GameObject volumeController;
-    public Slider slider;
-    public AudioSource audioSource;
+    public Slider musicSlider;
+    public Slider soundEffectSlider;
+    public AudioSource musicSource;
+    public AudioSource soundEffectSource;
 
     // Start is called before the first frame update
     void Start()
     {
       volumeController.SetActive(false);
+      musicSlider.value = PlayerPrefs.GetFloat("MusicVolume");
+      soundEffectSlider.value = PlayerPrefs.GetFloat("SoundEffectVolume");
     }
 
     // Update is called once per frame
@@ -22,16 +26,23 @@ public class VolumeControl : MonoBehaviour
 
     }
 
-    void OnTriggerEnter() {
-      volumeController.SetActive(true);
+    public void changeMusicVolume() {
+      if (musicSource != null) {
+        musicSource.volume = musicSlider.value;
+        PlayerPrefs.SetFloat("MusicVolume", musicSource.volume);
+        PlayerPrefs.Save();
+      }
     }
 
-    void OnTriggerExit() {
+    public void changeSoundEffectVolume() {
+      if (soundEffectSource != null) {
+        soundEffectSource.volume = soundEffectSlider.value;
+        PlayerPrefs.SetFloat("SoundEffectVolume", soundEffectSource.volume);
+        PlayerPrefs.Save();
+      }
+    }
+
+    public void disablePage() {
       volumeController.SetActive(false);
-    }
-
-    public void changeVolume() {
-      //Slider slider = volumeController.GetCompontent<Slider>();
-      audioSource.volume = slider.value;
     }
 }
