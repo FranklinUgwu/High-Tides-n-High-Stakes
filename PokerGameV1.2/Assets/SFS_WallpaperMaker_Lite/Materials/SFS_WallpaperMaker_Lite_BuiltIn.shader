@@ -2,6 +2,8 @@ Shader "SFS/WallpaperMaker_Lite"
 {
 	Properties
 	{
+		_MainTex ("Base (RGB)", 2D) = "white" {}
+
 		[Header(BASE PROPERTIES)]
 		[Space(5)]
 		_Metallic("Metallic", Range(0 , 1)) = 0
@@ -87,7 +89,7 @@ Shader "SFS/WallpaperMaker_Lite"
 
 		ENDCG
 		CGPROGRAM
-		#pragma surface surf Standard keepalpha fullforwardshadows 
+		#pragma surface surf Standard keepalpha fullforwardshadows
 
 		ENDCG
 		Pass

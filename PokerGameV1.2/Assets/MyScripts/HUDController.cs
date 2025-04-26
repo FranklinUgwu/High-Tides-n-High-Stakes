@@ -13,14 +13,14 @@ public class HUDController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        shells = PlayerPrefs.GetInt("Shells");
+        shells = PlayerPrefs.GetInt("Shells", 99999);
         moneyOutput.text = shells.ToString() + " Shells";
     }
 
     // Update is called once per frame
     void Update()
     {
-      shells = PlayerPrefs.GetInt("Shells");
+      shells = PlayerPrefs.GetInt("Shells", 99999);
       moneyOutput.text = shells.ToString() + " Shells";
     }
 }

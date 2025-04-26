@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InteractiveChair : MonoBehaviour
+public class InteractPrompt : MonoBehaviour
 {
 
     public GameObject interactPrompt;
