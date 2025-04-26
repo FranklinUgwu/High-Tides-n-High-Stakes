@@ -21,7 +21,7 @@ public class StartBlackjack : MonoBehaviour
         {
             Debug.Log("Game Started");
             interactPrompt.SetActive(false);
-            deckManager.StartGame();
+            deckManager.StartGame1();
         }
     }
 

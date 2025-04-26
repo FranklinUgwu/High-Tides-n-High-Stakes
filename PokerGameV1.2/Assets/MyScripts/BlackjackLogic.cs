@@ -39,6 +39,10 @@ public class DeckManager : MonoBehaviour
       betDisplay.text = betValue.ToString();
     }
 
+    public void betConfirm()
+    { 
+        waitingForPlayer = false;
+    }
     public void Start()
     {
         betScreen.SetActive(false);
@@ -51,13 +55,26 @@ public class DeckManager : MonoBehaviour
         standButton.SetActive(false);
         exitButton.SetActive(false);
     }
-    public void StartGame()
+    public void StartGame1()
     {
+        StartCoroutine(StartGame2());
+    }
+    public IEnumerator StartGame2()
+    {
+        Debug.Log("Start");
         playerCurrency=PlayerPrefs.GetInt("Shells");
         betScreen.SetActive(true);
         bet.maxValue = playerCurrency;
         BlackJackCam.enabled = true;
         playerCam.enabled = false;
+
+        while (waitingForPlayer)
+        {
+            yield return new WaitForSeconds(0.1f);//wait for player input
+        }
+        waitingForPlayer = true;
+
+        betScreen.SetActive(false);
         hitButton.SetActive(true);
         standButton.SetActive(true);
         shuffle();
