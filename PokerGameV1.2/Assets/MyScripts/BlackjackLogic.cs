@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class DeckManager : MonoBehaviour
@@ -25,11 +27,21 @@ public class DeckManager : MonoBehaviour
     public GameObject winner;
     public GameObject loser;
     public GameObject push;
+    public TextMeshProUGUI betDisplay;
     public Camera BlackJackCam;
     public Camera playerCam;
+    public GameObject betScreen;
+    public Slider bet;
+    private int betValue;
+
+    public void updateBet() {
+      betValue = (int)bet.value;
+      betDisplay.text = betValue.ToString();
+    }
 
     public void Start()
     {
+        betScreen.SetActive(false);
         winner.SetActive(false);
         loser.SetActive(false);
         push.SetActive(false);
@@ -41,6 +53,9 @@ public class DeckManager : MonoBehaviour
     }
     public void StartGame()
     {
+        playerCurrency=PlayerPrefs.GetInt("Shells");
+        betScreen.SetActive(true);
+        bet.maxValue = playerCurrency;
         BlackJackCam.enabled = true;
         playerCam.enabled = false;
         hitButton.SetActive(true);
@@ -60,7 +75,7 @@ public class DeckManager : MonoBehaviour
         incrementCurrentCard(false);
         playerCards.Add(shuffled_cards[currentCard]);
         incrementCurrentCard(true);
-        cardPos = new Vector3(0, 1, -0.3f);
+        cardPos = new Vector3(0, 1, -0.275f);
         rotation = Quaternion.Euler(270, 0, 0);
         createdCards.Add(drawCard(cardPos, rotation, true));
         incrementCurrentCard(false);
@@ -74,7 +89,7 @@ public class DeckManager : MonoBehaviour
         incrementCurrentCard(false);
         dealerCards.Add(shuffled_cards[currentCard]);
         incrementCurrentCard(true);
-        cardPos = new Vector3(0, 1, -0);
+        cardPos = new Vector3(0, 1, 0.025f);
         rotation = Quaternion.Euler(90, 0, 0);
         createdCards.Add(drawCard(cardPos, rotation, true));
 
@@ -86,6 +101,7 @@ public class DeckManager : MonoBehaviour
     {
         cardPos = tableCentre.position + cardPos;
         GameObject card = Instantiate(shuffled_cards[currentCard], cardPos, rotation, tableCentre);
+        card.transform.localScale = new Vector3(1.9f,1.9f,1.9f);
         incrementCurrentCard(true);
         return card;
     }
@@ -131,7 +147,7 @@ public class DeckManager : MonoBehaviour
             if (playerChoseToHit)
             {
                 Debug.Log("hit");
-                Vector3 nextCardPos = new Vector3(-0.06f + 0.06f * playerCards.Count, 1f, -0.3f);  // shift card position
+                Vector3 nextCardPos = new Vector3(-0.06f + 0.06f * playerCards.Count, 1f, -0.3f+0.025f*playerCards.Count);  // shift card position
                 Quaternion rot = Quaternion.Euler(270, 0, 0);
                 createdCards.Add(drawCard(nextCardPos, rot, true));
                 incrementCurrentCard(false);
@@ -162,7 +178,7 @@ public class DeckManager : MonoBehaviour
         if (bust == false)
         {
             Destroy(createdCards[3]);
-            Vector3 cardPos = new Vector3(0f, 1f, -0);
+            Vector3 cardPos = new Vector3(0f, 1f, 0.025f);
             Quaternion rotation = Quaternion.Euler(270, 0, 0);
             createdCards.Add(drawCard(cardPos, rotation, false));
             incrementCurrentCard(false);
@@ -173,6 +189,9 @@ public class DeckManager : MonoBehaviour
         }
         else
         {
+            playerCurrency -= betValue;
+            PlayerPrefs.SetInt("Shells",playerCurrency);
+            PlayerPrefs.Save();
             loser.SetActive(true);
             Debug.Log("bust");
             exitButton.SetActive(true);
@@ -203,7 +222,7 @@ public class DeckManager : MonoBehaviour
         while (dealer_score < 17 && player_blackjack == false)
         {
             System.Threading.Thread.Sleep(500);
-            Vector3 cardPos = new Vector3(-0.06f + 0.06f * dealerCards.Count, 1f, -0);
+            Vector3 cardPos = new Vector3(-0.06f + 0.06f * dealerCards.Count, 1f, 0+0.025f*dealerCards.Count);
             Quaternion rotation = Quaternion.Euler(270, 0, 0);
             createdCards.Add(drawCard(cardPos, rotation, false));
             incrementCurrentCard(false);
@@ -228,14 +247,17 @@ public class DeckManager : MonoBehaviour
             else if (player_blackjack == true && dealer_blackjack == false)
             {
                 winner.SetActive(true);
+                playerCurrency += betValue;
             }
             else if (player_blackjack == false && dealer_blackjack == true)
             {
                 loser.SetActive(true);
+                playerCurrency -= betValue;
             }
             else if (player_score > dealer_score)
             {
                 winner.SetActive(true);
+                playerCurrency += betValue;
             }
             else if (player_score == dealer_score && player_blackjack == false && dealer_blackjack == false)
             {
@@ -244,12 +266,16 @@ public class DeckManager : MonoBehaviour
             else
             {
                 loser.SetActive(true);
+                playerCurrency -= betValue;
             }
         }
         else
         {
             winner.SetActive(true);
+            playerCurrency += betValue;
         }
+        PlayerPrefs.SetInt("Shells",playerCurrency);
+        PlayerPrefs.Save();
         playerCards.Clear();
         dealerCards.Clear();
         exitButton.SetActive(true);
