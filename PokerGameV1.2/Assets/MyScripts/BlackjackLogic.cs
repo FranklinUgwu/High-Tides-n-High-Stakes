@@ -53,14 +53,14 @@ public class DeckManager : MonoBehaviour
     {
         Debug.Log("check");
         //player
-        Vector3 cardPos = new Vector3(-0.06f, 1, -0.4f);
+        Vector3 cardPos = new Vector3(-0.06f, 1, -0.3f);
         Quaternion rotation = Quaternion.Euler(270f, 0f, 0f);
         createdCards.Add(drawCard(cardPos, rotation, true));
         //decrements current card to add the card that was just drawn to the player/dealer decks
         incrementCurrentCard(false);
         playerCards.Add(shuffled_cards[currentCard]);
         incrementCurrentCard(true);
-        cardPos = new Vector3(0, 1, -0.4f);
+        cardPos = new Vector3(0, 1, -0.3f);
         rotation = Quaternion.Euler(270, 0, 0);
         createdCards.Add(drawCard(cardPos, rotation, true));
         incrementCurrentCard(false);
@@ -68,13 +68,13 @@ public class DeckManager : MonoBehaviour
         incrementCurrentCard(true);
 
         //dealer
-        cardPos = new Vector3(-0.06f, 1, -0.2f);
+        cardPos = new Vector3(-0.06f, 1, -0);
         rotation = Quaternion.Euler(270f, 0f, 0f);
         createdCards.Add(drawCard(cardPos, rotation, false));
         incrementCurrentCard(false);
         dealerCards.Add(shuffled_cards[currentCard]);
         incrementCurrentCard(true);
-        cardPos = new Vector3(0, 1, -0.2f);
+        cardPos = new Vector3(0, 1, -0);
         rotation = Quaternion.Euler(90, 0, 0);
         createdCards.Add(drawCard(cardPos, rotation, true));
 
@@ -131,7 +131,7 @@ public class DeckManager : MonoBehaviour
             if (playerChoseToHit)
             {
                 Debug.Log("hit");
-                Vector3 nextCardPos = new Vector3(-0.06f + 0.06f * playerCards.Count, 1f, -0.4f);  // shift card position
+                Vector3 nextCardPos = new Vector3(-0.06f + 0.06f * playerCards.Count, 1f, -0.3f);  // shift card position
                 Quaternion rot = Quaternion.Euler(270, 0, 0);
                 createdCards.Add(drawCard(nextCardPos, rot, true));
                 incrementCurrentCard(false);
@@ -162,7 +162,7 @@ public class DeckManager : MonoBehaviour
         if (bust == false)
         {
             Destroy(createdCards[3]);
-            Vector3 cardPos = new Vector3(0f, 1f, -0.2f);
+            Vector3 cardPos = new Vector3(0f, 1f, -0);
             Quaternion rotation = Quaternion.Euler(270, 0, 0);
             createdCards.Add(drawCard(cardPos, rotation, false));
             incrementCurrentCard(false);
@@ -203,7 +203,7 @@ public class DeckManager : MonoBehaviour
         while (dealer_score < 17 && player_blackjack == false)
         {
             System.Threading.Thread.Sleep(500);
-            Vector3 cardPos = new Vector3(-0.06f + 0.06f * dealerCards.Count, 1f, -0.2f);
+            Vector3 cardPos = new Vector3(-0.06f + 0.06f * dealerCards.Count, 1f, -0);
             Quaternion rotation = Quaternion.Euler(270, 0, 0);
             createdCards.Add(drawCard(cardPos, rotation, false));
             incrementCurrentCard(false);

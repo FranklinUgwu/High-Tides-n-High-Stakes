@@ -9,6 +9,7 @@ public class ItemManager : MonoBehaviour
 
     public int price = 2000;
     public int index;
+    public TextMeshProUGUI title;
     public Material wallpaper;
     public TextMeshProUGUI priceTag;
     public GameObject confirmScreen;
@@ -30,6 +31,7 @@ public class ItemManager : MonoBehaviour
 
     private int shells;
     private GameObject[] room;
+    private int status;
 
     // Start is called before the first frame update
     void Start()
@@ -37,35 +39,42 @@ public class ItemManager : MonoBehaviour
       room = new GameObject[]{ corner1, corner2, corner3, corner4,
                                             wall1, wall2, wall3LeftWin, wall3RightWin, wall3Centre,
                                             wall4LeftWin, wall4RightWin, wall4Centre};
+      priceTag.text = price.ToString() + " Shells";
+      PlayerPrefs.SetInt("Wallpaper 5", 0);
+      PlayerPrefs.Save();
     }
 
     // Update is called once per frame
     void Update()
     {
       shells = PlayerPrefs.GetInt("Shells", 99999);
+      soldItem();
+    }
+
+    private void soldItem() {
+      status = PlayerPrefs.GetInt(title.text, 1);
+      if (status == 0) {
+        priceTag.text = "Owned";
+      }
     }
 
     public void confirmPurchase() {
-      equipScreen.SetActive(true);
-      /*if (shells < price) {
-        invalidScreen.SetActive(true);
-      } else {
-        confirmScreen.SetActive(true);
-      }*/
+      if (status == 1) {
+        if (shells < price) {
+          invalidScreen.SetActive(true);
+        } else {
+          confirmScreen.SetActive(true);
+        }
+      } else if (status == 0) {
+        equipScreen.SetActive(true);
+      }
     }
 
     public void purchaseConfirmed() {
       PlayerPrefs.SetInt("Shells", shells - price);
+      PlayerPrefs.SetInt(title.text, 0);
       PlayerPrefs.Save();
       confirmScreen.SetActive(false);
-    }
-
-    public void cancelPurchase() {
-      confirmScreen.SetActive(false);
-    }
-
-    public void equipItem() {
-      equipScreen.SetActive(true);
     }
 
     public void confirmEquip() {
@@ -76,13 +85,5 @@ public class ItemManager : MonoBehaviour
       PlayerPrefs.SetInt("WallpaperIndex", index);
       PlayerPrefs.Save();
       equipScreen.SetActive(false);
-    }
-
-    public void cancelEquip() {
-      equipScreen.SetActive(false);
-    }
-
-    public void closeAlert() {
-      invalidScreen.SetActive(false);
     }
 }
