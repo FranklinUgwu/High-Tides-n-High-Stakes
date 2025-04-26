@@ -20,11 +20,6 @@ public class PauseScreen : MonoBehaviour
       settingsCanvas.SetActive(true);
     }
 
-    public void ResumeGame() {
-      currentStatus = false;
-      pauseScreenUI.SetActive(currentStatus);
-    }
-
     // Start is called before the first frame update
     void Start()
     {
@@ -43,7 +38,7 @@ public class PauseScreen : MonoBehaviour
         }
     }
 
-    void Resume() {
+    public void Resume() {
       pauseScreenUI.SetActive(false);
       hudScreenUI.SetActive(true);
       currentStatus = false;
