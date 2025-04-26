@@ -50,5 +50,6 @@ public class Deck1
             shuffled_cards.Add(list[num]);
             list.RemoveAt(num);
         }
+        
     }
 }
