@@ -46,6 +46,7 @@ public class CardGameUI : MonoBehaviour
     public void from_start()
     {
         amount_to_show.text = "Bet: 10";
+        show_bet.text = "Current Pot: 0"
         raise_hold = 0;
         full_slide.SetActive(false);
         raise_on = false;
