@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Linq;
+using TMPro;
 public class CardGameUI : MonoBehaviour
 {
     public List<GameObject> list_of_prefabs = new List<GameObject>();
@@ -23,15 +24,31 @@ public class CardGameUI : MonoBehaviour
     public Button betButton;
     public int wallet;
     private int current_bet;
-
+    public TextMeshProUGUI show_bet;
+    public TextMeshProUGUI win_loss;
+    public GameObject win_loss_obj;
     public int player_turn;
+    public Slider raise_slide;
+    public int bet_val;
+    public bool raise_on;
+    public GameObject full_slide;
+    public int raise_hold;
+    public TextMeshProUGUI raise_display;
+    public Button raise_button;
     //public Button foldButton;
     public void from_start()
     {
-        wallet = PlayerPrefs.GetInt("Shells",1000);
+        raise_hold = 0;
+        full_slide.SetActive(false);
+        raise_on = false;
+        bet_val = 10;
+        win_loss_obj.SetActive(false);
+        wallet = PlayerPrefs.GetInt("Shells");
         Debug.Log("Wallet is" + wallet.ToString());
         current_bet = 0;
+        raise_slide.maxValue = wallet;
         betButton.onClick.AddListener(betClicked);
+        raise_button.onClick.AddListener(Raise_Clicked);
         betButton.interactable = false;
         _deck = new Deck1();
         _deck.shuffle();
@@ -55,59 +72,155 @@ public class CardGameUI : MonoBehaviour
         Debug.Log("Button Clicked");
         if(player_turn == 0)
         {
-            current_bet = current_bet + 10;
-            wallet = wallet - 10;
-            PlayerPrefs.SetInt("Shells", wallet);
-            PlayerPrefs.Save();
-            Debug.Log("Money is " +PlayerPrefs.GetInt("Shells").ToString());
-            Debug.Log("0 turn");
-            betButton.interactable = false;
-            river.Add(_deck.Draw_card());
-            StartCoroutine(Countdown4());
-            river.Add(_deck.Draw_card());
-            StartCoroutine(Countdown5());
-            river.Add(_deck.Draw_card());
-            StartCoroutine(Countdown6());
-            player_turn ++;
+            Debug.Log(wallet.ToString());
+            if (wallet > 10)
+            {   
+                current_bet = current_bet + bet_val;
+                show_bet.text = "Current Pot: \n" + (current_bet* 2).ToString();
+                wallet = wallet - bet_val;
+                PlayerPrefs.SetInt("Shells", wallet);
+                PlayerPrefs.Save();
+                Debug.Log("Money is " +PlayerPrefs.GetInt("Shells").ToString());
+                Debug.Log("0 turn");
+                raise_slide.maxValue = wallet;
+                betButton.interactable = false;
+                river.Add(_deck.Draw_card());
+                StartCoroutine(Countdown4());
+                river.Add(_deck.Draw_card());
+                StartCoroutine(Countdown5());
+                river.Add(_deck.Draw_card());
+                StartCoroutine(Countdown6());
+                player_turn ++;
+                bet_val = 10;
+            }
+            else
+            {
+                Debug.Log("Not enough money to play");
+            }
         }
         else if(player_turn == 1)
         {
-            current_bet = current_bet + 10;
-            wallet = wallet - 10;
-            PlayerPrefs.SetInt("Shells", wallet);
-            PlayerPrefs.Save();
-            Debug.Log("Money is " +PlayerPrefs.GetInt("Shells").ToString());
-            Debug.Log("1 turn");
-            betButton.interactable = false;
-            river.Add(_deck.Draw_card());
-            StartCoroutine(Countdown7());
-            player_turn ++;
+            if (wallet >= bet_val)
+            {
+                current_bet = current_bet + bet_val;
+                show_bet.text = "Current Pot: \n" + (current_bet* 2).ToString();
+                wallet = wallet - bet_val;
+                PlayerPrefs.SetInt("Shells", wallet);
+                PlayerPrefs.Save();
+                Debug.Log("Money is " +PlayerPrefs.GetInt("Shells").ToString());
+                raise_slide.maxValue = wallet;
+                Debug.Log("1 turn");
+                betButton.interactable = false;
+                river.Add(_deck.Draw_card());
+                StartCoroutine(Countdown7());
+                player_turn ++;
+                bet_val = 10;
+            }
+            else if (wallet < 10)
+            {
+                bet_val = wallet;
+                current_bet = current_bet + bet_val;
+                show_bet.text = "Current Pot: \n" + (current_bet* 2).ToString();
+                wallet = wallet - bet_val;
+                PlayerPrefs.SetInt("Shells", wallet);
+                PlayerPrefs.Save();
+                Debug.Log("Money is " +PlayerPrefs.GetInt("Shells").ToString());
+                raise_slide.maxValue = wallet;
+                Debug.Log("1 turn");
+                betButton.interactable = false;
+                river.Add(_deck.Draw_card());
+                StartCoroutine(Countdown7());
+                player_turn ++;
+            }
+            else if (wallet == 0)
+            {
+                Debug.Log("1 turn");
+                betButton.interactable = false;
+                river.Add(_deck.Draw_card());
+                StartCoroutine(Countdown7());
+                player_turn ++;
+            }
         }
         else if(player_turn == 2)
         {
-            current_bet = current_bet + 10;
-            wallet = wallet - 10;
-            PlayerPrefs.SetInt("Shells", wallet);
-            PlayerPrefs.Save();
-            Debug.Log("Money is " +PlayerPrefs.GetInt("Shells").ToString());
-            Debug.Log("3 turn");
-            betButton.interactable = false;
-            river.Add(_deck.Draw_card());
-            StartCoroutine(Countdown8());
-            player_turn ++;
+            if (wallet != 0)
+            {
+                current_bet = current_bet + bet_val;
+                show_bet.text = "Current Pot: \n" + (current_bet * 2).ToString();
+                wallet = wallet - bet_val;
+                PlayerPrefs.SetInt("Shells", wallet);
+                PlayerPrefs.Save();
+                Debug.Log("Money is " +PlayerPrefs.GetInt("Shells").ToString());
+                raise_slide.maxValue = wallet;
+                Debug.Log("3 turn");
+                betButton.interactable = false;
+                river.Add(_deck.Draw_card());
+                StartCoroutine(Countdown8());
+                player_turn ++;
+                bet_val = 10;
+            }
+            else if(wallet < 10)
+            {
+                bet_val = wallet;
+                current_bet = current_bet + bet_val;
+                show_bet.text = "Current Pot: \n" + (current_bet * 2).ToString();
+                wallet = wallet - bet_val;
+                PlayerPrefs.SetInt("Shells", wallet);
+                PlayerPrefs.Save();
+                Debug.Log("Money is " +PlayerPrefs.GetInt("Shells").ToString());
+                raise_slide.maxValue = wallet;
+                Debug.Log("3 turn");
+                betButton.interactable = false;
+                river.Add(_deck.Draw_card());
+                StartCoroutine(Countdown8());
+                player_turn ++;
+            }
+            else if(wallet == 0)
+            {
+                betButton.interactable = false;
+                river.Add(_deck.Draw_card());
+                StartCoroutine(Countdown8());
+                player_turn ++;
+            }
         }
         else
         {
-            current_bet = current_bet + 10;
-            wallet = wallet - 10;
-            PlayerPrefs.SetInt("Shells", wallet);
-            PlayerPrefs.Save();
-            Debug.Log("Money is " +PlayerPrefs.GetInt("Shells").ToString());
+            if (wallet != 0)
+            {
+                current_bet = current_bet + bet_val;
+                show_bet.text = "Current Pot: \n" + (current_bet * 2).ToString();
+                wallet = wallet - bet_val;
+                PlayerPrefs.SetInt("Shells", wallet);
+                PlayerPrefs.Save();
+                Debug.Log("Money is " +PlayerPrefs.GetInt("Shells").ToString());
+                raise_slide.maxValue = wallet;
+            }
             betButton.interactable = false;
             Tuple<string ,int,int,int,int> player_vals = calc_win(player);
             dealer_turn(player_vals);
         }
     }
+
+    public void update_raise()
+    {
+        raise_hold = (int)raise_slide.value;
+        raise_display.text = raise_hold.ToString();
+    }
+    void Raise_Clicked()
+    {
+        if (raise_on == false)
+        {
+            full_slide.SetActive(true);
+            raise_on = true;
+        }
+        else
+        {
+            bet_val = raise_hold;
+            full_slide.SetActive(false);
+            raise_on = false;
+        }
+    }
+    
     private IEnumerator Countdown1()
     {
         yield return new WaitForSeconds(.5f);
@@ -295,10 +408,12 @@ public class CardGameUI : MonoBehaviour
         int second_max = count_values.Max();*/
         if (four_of)
         {
+            Debug.Log("Found 4");
             player_hand_temp1 = "Four of a Kind";
         }
-        if (trips.Count == 2) 
+        else if (trips.Count == 2) 
         {
+            Debug.Log("Found Full");
             max_repeat_val = trips[1];
             second_repeat_val = trips[0];
             player_hand_temp1 = "Full House";
@@ -407,6 +522,7 @@ public class CardGameUI : MonoBehaviour
         */
         bool player_straight = false;
         values.Sort();
+        //Debug.Log(values[0].ToString() + values[1].ToString() + values[2].ToString()+ values[3].ToString()+ values[4].ToString()+ values[5].ToString()+ values[6].ToString());
         List<int> straight_values = values;
         if (straight_values.IndexOf(1) != -1) 
         {
@@ -417,11 +533,12 @@ public class CardGameUI : MonoBehaviour
         int chain = 0;
         List<int> hold_list = new List<int>();
         List<int> chain_list = new List<int>();
-        foreach(int val in values)
+        foreach(int val in straight_values)
         {
             if (val == previous + 1)
             {
                 chain ++;
+                Debug.Log("Current Chain = " + chain.ToString());
                 hold_list.Add(val);
                 if (chain > max_chain) 
                 {
@@ -430,12 +547,14 @@ public class CardGameUI : MonoBehaviour
                 }
             }
             else{
-                chain = 0;
+                chain = 1;
                 hold_list = new List<int>();
             }
             previous = val;
         }
+        Debug.Log("Max chain is " + max_chain.ToString());
         if (max_chain == 5) {
+            Debug.Log("Straight Found");
             player_straight = true;
             straight_base = chain_list[0];
         }
@@ -541,8 +660,8 @@ public class CardGameUI : MonoBehaviour
         }
         String main_hand = "";
         bool hand_found = false;
-        //Console.WriteLine(player_hand_temp1);
-        //Console.WriteLine(player_hand_temp2);
+        Debug.Log(player_hand_temp1);
+        Debug.Log(player_hand_temp2);
         foreach(String hand_type in hand_hierarchy)
         {
             if ((player_hand_temp1 == hand_type || player_hand_temp2 == hand_type) && hand_found == false)
@@ -730,21 +849,29 @@ public class CardGameUI : MonoBehaviour
                 }
             }
         }
-        list_of_prefabs[2].transform.position += new Vector3(0,0,-0.1f);
+        list_of_prefabs[2].transform.position += new Vector3(0,0.2f,-0.1f);
         list_of_prefabs[2].transform.Rotate(260,0,0);
         list_of_prefabs[3].transform.Rotate(260,0,0);
         if(player_win)
         {
+            win_loss.text = "Player Wins!! \n You won with " + player_vals.Item1;
+            win_loss_obj.SetActive(true);
+            wallet = wallet + (current_bet * 2);
+            PlayerPrefs.SetInt("Shells", wallet);
             Debug.Log("Player Wins!!  The winning hand was" + player_vals.Item1 + "max_val was " + player_vals.Item2 + "second val was " + player_vals.Item3+ "high card was" + player_vals.Item5);
             Debug.Log("Dealer Lost!!  The losing hand was" + dealer_vals.Item1 + "max_val was " + dealer_vals.Item2 + "second val was " + dealer_vals.Item3+ "high card was" + dealer_vals.Item5);
         }
         else if (dealer_win)
         {
+            win_loss.text = "Player Loses!! \n You lost to " + dealer_vals.Item1;
+            win_loss_obj.SetActive(true);
             Debug.Log("Dealer Wins!!  The winning hand was" + dealer_vals.Item1 + "max_val was " + dealer_vals.Item2 + "second val was " + dealer_vals.Item3+ "high card was" + dealer_vals.Item5);
             Debug.Log("Player Lost!!  The losing hand was" + player_vals.Item1 + "max_val was " + player_vals.Item2 + "second val was " + player_vals.Item3+ "high card was" + player_vals.Item5);
         }
         else
         {
+            win_loss.text = "Split Pot!! \n You drew with " + player_vals.Item1;
+            win_loss_obj.SetActive(true);
             Debug.Log("Split Pot!!  The Dealers hand was" + dealer_vals.Item1 + "max_val was " + dealer_vals.Item2 + "second val was " + dealer_vals.Item3+ "high card was" + dealer_vals.Item5);
             Debug.Log("Split Pot!!  The Players hand was" + player_vals.Item1 + "max_val was " + player_vals.Item2 + "second val was " + player_vals.Item3+ "high card was" + player_vals.Item5);
         }
@@ -753,11 +880,13 @@ public class CardGameUI : MonoBehaviour
         river.Clear();
         StartCoroutine(ready_restart());
         betButton.onClick.RemoveListener(betClicked);
+        raise_button.onClick.RemoveListener(Raise_Clicked);
+        show_bet.text = "Current Pot: \n 0";
     }
 
     private IEnumerator ready_restart()
     {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(3);
         foreach(GameObject dest_card in list_of_prefabs)
         {
             Destroy(dest_card);

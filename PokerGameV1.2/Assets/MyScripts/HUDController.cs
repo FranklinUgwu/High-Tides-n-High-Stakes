@@ -13,7 +13,7 @@ public class HUDController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (PlayerPrefs.GetInt("Shells") == 0)
+        if (PlayerPrefs.GetInt("Shells") <= 0)
         {
           PlayerPrefs.SetInt("Shells", 1000);
         }
