@@ -103,7 +103,14 @@ public class CardGameUI : MonoBehaviour
                 StartCoroutine(Countdown6());
                 player_turn ++;
                 bet_val = 10;
-                amount_to_show.text = "Bet: " + bet_val.ToString();
+                if(wallet == 0)
+                {
+                    amount_to_show.text = "Check";
+                }
+                else 
+                {
+                    amount_to_show.text = "Bet: " + bet_val.ToString();
+                }
             }
             else if(wallet < 10)
             {
@@ -134,7 +141,14 @@ public class CardGameUI : MonoBehaviour
                 StartCoroutine(Countdown7());
                 player_turn ++;
                 bet_val = 10;
-                amount_to_show.text = "Bet: " + bet_val.ToString();
+                if(wallet == 0)
+                {
+                    amount_to_show.text = "Check";
+                }
+                else 
+                {
+                    amount_to_show.text = "Bet: " + bet_val.ToString();
+                }
             }
             else if (wallet < 10 && wallet > 0 && player_fold == false)
             {
@@ -151,7 +165,7 @@ public class CardGameUI : MonoBehaviour
                 river.Add(_deck.Draw_card());
                 StartCoroutine(Countdown7());
                 player_turn ++;
-                amount_to_show.text = "Bet: 0";
+                amount_to_show.text = "Check";
             }
             else
             {
@@ -160,7 +174,7 @@ public class CardGameUI : MonoBehaviour
                 river.Add(_deck.Draw_card());
                 StartCoroutine(Countdown7());
                 player_turn ++;
-                amount_to_show.text = "Bet: 0";
+                amount_to_show.text = "Check";
             }
         }
         else if(player_turn == 2)
@@ -180,7 +194,14 @@ public class CardGameUI : MonoBehaviour
                 StartCoroutine(Countdown8());
                 player_turn ++;
                 bet_val = 10;
-                amount_to_show.text = "Bet: " + bet_val.ToString();
+                if(wallet == 0)
+                {
+                    amount_to_show.text = "Check";
+                }
+                else 
+                {
+                    amount_to_show.text = "Bet: " + bet_val.ToString();
+                }
             }
             else if(wallet < 10 && wallet > 0 && player_fold == false)
             {
@@ -197,7 +218,7 @@ public class CardGameUI : MonoBehaviour
                 river.Add(_deck.Draw_card());
                 StartCoroutine(Countdown8());
                 player_turn ++;
-                amount_to_show.text = "Bet: 0";
+                amount_to_show.text = "Check";
             }
             else
             {
@@ -206,7 +227,7 @@ public class CardGameUI : MonoBehaviour
                 river.Add(_deck.Draw_card());
                 StartCoroutine(Countdown8());
                 player_turn ++;
-                amount_to_show.text = "Bet: 0";
+                amount_to_show.text = "Check";
             }
         }
         else
@@ -229,7 +250,7 @@ public class CardGameUI : MonoBehaviour
             raise_slide.maxValue = wallet;
             betButton.interactable = false;
             Tuple<string ,int,int,int,int> player_vals = calc_win(player);
-            amount_to_show.text = "Bet: 0";
+            amount_to_show.text = "Bet: 10";
             player_turn++;
             dealer_turn(player_vals);
         }
