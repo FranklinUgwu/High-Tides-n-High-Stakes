@@ -35,9 +35,17 @@ public class CardGameUI : MonoBehaviour
     public int raise_hold;
     public TextMeshProUGUI raise_display;
     public Button raise_button;
+    public TextMeshProUGUI amount_to_show;
+    public bool player_fold;
+    public Button foldbutton;
     //public Button foldButton;
+    public GameObject cardGameUI;
+    public Camera cardGameCamera;
+    public Camera mainCamera;
+    public Button exit_button;
     public void from_start()
     {
+        amount_to_show.text = "Bet: 10";
         raise_hold = 0;
         full_slide.SetActive(false);
         raise_on = false;
@@ -49,6 +57,8 @@ public class CardGameUI : MonoBehaviour
         raise_slide.maxValue = wallet;
         betButton.onClick.AddListener(betClicked);
         raise_button.onClick.AddListener(Raise_Clicked);
+        foldbutton.onClick.AddListener(foldClicked);
+        exit_button.onClick.AddListener(exitClicked);
         betButton.interactable = false;
         _deck = new Deck1();
         _deck.shuffle();
@@ -73,8 +83,9 @@ public class CardGameUI : MonoBehaviour
         if(player_turn == 0)
         {
             Debug.Log(wallet.ToString());
-            if (wallet > 10)
+            if (wallet > 10 && player_fold == false)
             {   
+                win_loss_obj.SetActive(false);
                 current_bet = current_bet + bet_val;
                 show_bet.text = "Current Pot: \n" + (current_bet* 2).ToString();
                 wallet = wallet - bet_val;
@@ -92,15 +103,23 @@ public class CardGameUI : MonoBehaviour
                 StartCoroutine(Countdown6());
                 player_turn ++;
                 bet_val = 10;
+                amount_to_show.text = "Bet: " + bet_val.ToString();
             }
-            else
+            else if(wallet < 10)
             {
+                win_loss_obj.SetActive(false);
                 Debug.Log("Not enough money to play");
+            }
+            else 
+            {
+                win_loss.text = "Cannot fold on turn 1";
+                win_loss_obj.SetActive(true);
+                player_fold = false;
             }
         }
         else if(player_turn == 1)
         {
-            if (wallet >= bet_val)
+            if (wallet >= bet_val && player_fold == false)
             {
                 current_bet = current_bet + bet_val;
                 show_bet.text = "Current Pot: \n" + (current_bet* 2).ToString();
@@ -115,8 +134,9 @@ public class CardGameUI : MonoBehaviour
                 StartCoroutine(Countdown7());
                 player_turn ++;
                 bet_val = 10;
+                amount_to_show.text = "Bet: " + bet_val.ToString();
             }
-            else if (wallet < 10)
+            else if (wallet < 10 && wallet > 0 && player_fold == false)
             {
                 bet_val = wallet;
                 current_bet = current_bet + bet_val;
@@ -131,19 +151,21 @@ public class CardGameUI : MonoBehaviour
                 river.Add(_deck.Draw_card());
                 StartCoroutine(Countdown7());
                 player_turn ++;
+                amount_to_show.text = "Bet: 0";
             }
-            else if (wallet == 0)
+            else
             {
                 Debug.Log("1 turn");
                 betButton.interactable = false;
                 river.Add(_deck.Draw_card());
                 StartCoroutine(Countdown7());
                 player_turn ++;
+                amount_to_show.text = "Bet: 0";
             }
         }
         else if(player_turn == 2)
         {
-            if (wallet != 0)
+            if (wallet >= bet_val && player_fold == false)
             {
                 current_bet = current_bet + bet_val;
                 show_bet.text = "Current Pot: \n" + (current_bet * 2).ToString();
@@ -158,8 +180,9 @@ public class CardGameUI : MonoBehaviour
                 StartCoroutine(Countdown8());
                 player_turn ++;
                 bet_val = 10;
+                amount_to_show.text = "Bet: " + bet_val.ToString();
             }
-            else if(wallet < 10)
+            else if(wallet < 10 && wallet > 0 && player_fold == false)
             {
                 bet_val = wallet;
                 current_bet = current_bet + bet_val;
@@ -174,30 +197,65 @@ public class CardGameUI : MonoBehaviour
                 river.Add(_deck.Draw_card());
                 StartCoroutine(Countdown8());
                 player_turn ++;
+                amount_to_show.text = "Bet: 0";
             }
-            else if(wallet == 0)
+            else
             {
+                Debug.Log("3 turn");
                 betButton.interactable = false;
                 river.Add(_deck.Draw_card());
                 StartCoroutine(Countdown8());
                 player_turn ++;
+                amount_to_show.text = "Bet: 0";
             }
         }
         else
         {
-            if (wallet != 0)
+            if (wallet >= bet_val && player_fold == false)
             {
                 current_bet = current_bet + bet_val;
-                show_bet.text = "Current Pot: \n" + (current_bet * 2).ToString();
                 wallet = wallet - bet_val;
-                PlayerPrefs.SetInt("Shells", wallet);
-                PlayerPrefs.Save();
-                Debug.Log("Money is " +PlayerPrefs.GetInt("Shells").ToString());
-                raise_slide.maxValue = wallet;
             }
+            else if(wallet < 10 && player_fold == false)
+            {
+                bet_val = wallet;
+                current_bet = current_bet + bet_val;
+                wallet = wallet - bet_val;
+            }
+            show_bet.text = "Current Pot: \n" + (current_bet * 2).ToString();
+            PlayerPrefs.SetInt("Shells", wallet);
+            PlayerPrefs.Save();
+            Debug.Log("Money is " +PlayerPrefs.GetInt("Shells").ToString());
+            raise_slide.maxValue = wallet;
             betButton.interactable = false;
             Tuple<string ,int,int,int,int> player_vals = calc_win(player);
+            amount_to_show.text = "Bet: 0";
+            player_turn++;
             dealer_turn(player_vals);
+        }
+    }
+
+    void foldClicked()
+    {
+        if (player_turn != 0)
+        {
+            player_fold = true;
+            StartCoroutine(clicking_1());
+        }
+        else
+        {
+            player_fold = true;
+            betClicked();
+        }
+    }
+
+    private IEnumerator clicking_1()
+    {
+        while (player_turn < 4)
+        {
+            betClicked();
+            betButton.interactable = false;
+            yield return new WaitForSeconds(1.5f);
         }
     }
 
@@ -218,7 +276,27 @@ public class CardGameUI : MonoBehaviour
             bet_val = raise_hold;
             full_slide.SetActive(false);
             raise_on = false;
+            amount_to_show.text = "Bet: " + bet_val.ToString();
         }
+    }
+
+    void exitClicked()
+    {
+        player.Clear();
+        dealer.Clear();
+        river.Clear();
+        foreach(GameObject dest_card in list_of_prefabs)
+        {
+            Destroy(dest_card);
+        }
+        betButton.onClick.RemoveListener(betClicked);
+        raise_button.onClick.RemoveListener(Raise_Clicked);
+        foldbutton.onClick.RemoveListener(foldClicked);
+        exit_button.onClick.RemoveListener(exitClicked);
+        list_of_prefabs.Clear();
+        mainCamera.enabled = true;
+        cardGameCamera.enabled = false;
+        cardGameUI.SetActive(false);
     }
     
     private IEnumerator Countdown1()
@@ -852,7 +930,12 @@ public class CardGameUI : MonoBehaviour
         list_of_prefabs[2].transform.position += new Vector3(0,0.2f,-0.1f);
         list_of_prefabs[2].transform.Rotate(260,0,0);
         list_of_prefabs[3].transform.Rotate(260,0,0);
-        if(player_win)
+        if (player_fold)
+        {
+            win_loss.text = "Player Folded";
+            win_loss_obj.SetActive(true);
+        }
+        else if(player_win)
         {
             win_loss.text = "Player Wins!! \n You won with " + player_vals.Item1;
             win_loss_obj.SetActive(true);
@@ -881,7 +964,11 @@ public class CardGameUI : MonoBehaviour
         StartCoroutine(ready_restart());
         betButton.onClick.RemoveListener(betClicked);
         raise_button.onClick.RemoveListener(Raise_Clicked);
+        foldbutton.onClick.RemoveListener(foldClicked);
+        exit_button.onClick.RemoveListener(exitClicked);
         show_bet.text = "Current Pot: \n 0";
+        player_fold = false;
+        bet_val = 10;
     }
 
     private IEnumerator ready_restart()
