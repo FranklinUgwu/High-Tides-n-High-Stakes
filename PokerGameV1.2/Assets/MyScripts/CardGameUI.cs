@@ -43,8 +43,10 @@ public class CardGameUI : MonoBehaviour
     public Camera cardGameCamera;
     public Camera mainCamera;
     public Button exit_button;
+    public GameObject playerModel;
     public void from_start()
     {
+        playerModel.SetActive(false);
         amount_to_show.text = "Bet: 10";
         show_bet.text = "Current Pot: 0";
         raise_hold = 0;
@@ -85,7 +87,7 @@ public class CardGameUI : MonoBehaviour
         {
             Debug.Log(wallet.ToString());
             if (wallet > 10 && player_fold == false)
-            {   
+            {
                 win_loss_obj.SetActive(false);
                 current_bet = current_bet + bet_val;
                 show_bet.text = "Current Pot: \n" + (current_bet* 2).ToString();
@@ -108,7 +110,7 @@ public class CardGameUI : MonoBehaviour
                 {
                     amount_to_show.text = "Check";
                 }
-                else 
+                else
                 {
                     amount_to_show.text = "Bet: " + bet_val.ToString();
                 }
@@ -118,7 +120,7 @@ public class CardGameUI : MonoBehaviour
                 win_loss_obj.SetActive(false);
                 Debug.Log("Not enough money to play");
             }
-            else 
+            else
             {
                 win_loss.text = "Cannot fold on turn 1";
                 win_loss_obj.SetActive(true);
@@ -146,7 +148,7 @@ public class CardGameUI : MonoBehaviour
                 {
                     amount_to_show.text = "Check";
                 }
-                else 
+                else
                 {
                     amount_to_show.text = "Bet: " + bet_val.ToString();
                 }
@@ -199,7 +201,7 @@ public class CardGameUI : MonoBehaviour
                 {
                     amount_to_show.text = "Check";
                 }
-                else 
+                else
                 {
                     amount_to_show.text = "Bet: " + bet_val.ToString();
                 }
@@ -304,6 +306,10 @@ public class CardGameUI : MonoBehaviour
 
     void exitClicked()
     {
+        playerModel.SetActive(true);
+        if (PlayerPrefs.GetInt("Shells", 1000) <= 0) {
+          PlayerPrefs.SetInt("Shells", 100);
+        }
         player.Clear();
         dealer.Clear();
         river.Clear();
@@ -320,13 +326,13 @@ public class CardGameUI : MonoBehaviour
         cardGameCamera.enabled = false;
         cardGameUI.SetActive(false);
     }
-    
+
     private IEnumerator Countdown1()
     {
         yield return new WaitForSeconds(.5f);
         UpdateCardDisplay(player[1].get_value(), player[1].get_suit(), new Vector3(-0.05f,0.855f,0.18f), Quaternion.Euler(270,90,90));
     }
-    
+
     private IEnumerator Countdown2()
     {
         yield return new WaitForSeconds(1);
@@ -378,11 +384,11 @@ public class CardGameUI : MonoBehaviour
         // Log the received card information
         //Debug.Log($"Received Card: {cardValue} of {cardSuit}");
         string prefabname = "";
-        if (cardValue == 1) 
+        if (cardValue == 1)
         {
             prefabname = "Card_"+cardSuit+"Ace";
         }
-        else if(cardValue == 11) 
+        else if(cardValue == 11)
         {
             prefabname = "Card_"+cardSuit+"Jack";
         }
@@ -394,9 +400,9 @@ public class CardGameUI : MonoBehaviour
         {
             prefabname = "Card_"+cardSuit+"King";
         }
-        else 
+        else
         {
-            prefabname = "Card_"+cardSuit+ cardValue.ToString();  
+            prefabname = "Card_"+cardSuit+ cardValue.ToString();
         }
         GameObject fab_hold = null;
         foreach(GameObject pfab in prefabList)
@@ -409,7 +415,7 @@ public class CardGameUI : MonoBehaviour
         //if (where == "player")
         //Vector3 position = new Vector3(-0.247f,0.8389155f,0.294f);
         // Instantiate the card at the given position and rotation
-        if (fab_hold != null) 
+        if (fab_hold != null)
         {
             GameObject newCard = Instantiate(fab_hold, position, qat);
             list_of_prefabs.Add(newCard);
@@ -429,7 +435,7 @@ public class CardGameUI : MonoBehaviour
         String player_hand_temp1;
         List<Card> hand = given_hand;
         List<int> player_ranks = new List<int>();
-        foreach(Card c in hand) 
+        foreach(Card c in hand)
         {
             if (c.get_value() != 1)
             {
@@ -479,7 +485,7 @@ public class CardGameUI : MonoBehaviour
         for(int i = 0; i < count_values.Count; i++)
         {
             int addval = values[i];
-            if (count_values[i] == 2) 
+            if (count_values[i] == 2)
             {
                 if (addval == 1)
                 {
@@ -511,7 +517,7 @@ public class CardGameUI : MonoBehaviour
             Debug.Log("Found 4");
             player_hand_temp1 = "Four of a Kind";
         }
-        else if (trips.Count == 2) 
+        else if (trips.Count == 2)
         {
             Debug.Log("Found Full");
             max_repeat_val = trips[1];
@@ -541,7 +547,7 @@ public class CardGameUI : MonoBehaviour
             }
         }
         else {
-            if(pairs.Count >= 2) 
+            if(pairs.Count >= 2)
             {
                 player_hand_temp1 = "Two Pair";
                 max_repeat_val = pairs[pairs.Count() - 1];
@@ -549,7 +555,7 @@ public class CardGameUI : MonoBehaviour
                 if (player_ranks.IndexOf(max_repeat_val) != -1)
                 {
                     player_ranks.RemoveAt(player_ranks.IndexOf(max_repeat_val));
-                    if (player_ranks.IndexOf(second_repeat_val) != -1) 
+                    if (player_ranks.IndexOf(second_repeat_val) != -1)
                     {
                         high_card = -1;
                         player_ranks.Add(player_ranks.IndexOf(max_repeat_val));
@@ -624,7 +630,7 @@ public class CardGameUI : MonoBehaviour
         values.Sort();
         //Debug.Log(values[0].ToString() + values[1].ToString() + values[2].ToString()+ values[3].ToString()+ values[4].ToString()+ values[5].ToString()+ values[6].ToString());
         List<int> straight_values = values;
-        if (straight_values.IndexOf(1) != -1) 
+        if (straight_values.IndexOf(1) != -1)
         {
             straight_values.Add(14);
         }
@@ -640,7 +646,7 @@ public class CardGameUI : MonoBehaviour
                 chain ++;
                 Debug.Log("Current Chain = " + chain.ToString());
                 hold_list.Add(val);
-                if (chain > max_chain) 
+                if (chain > max_chain)
                 {
                     max_chain = chain;
                     chain_list = hold_list;
@@ -703,7 +709,7 @@ public class CardGameUI : MonoBehaviour
                     straight_base = check_chain[0];
                 }
             }
-            else if (chain == 7) 
+            else if (chain == 7)
             {
                 List<int> check_chain = chain_list.GetRange(2,5);
                 player_hand_temp2 = straightflush(check_chain, suits, values_unchanged);
@@ -725,7 +731,7 @@ public class CardGameUI : MonoBehaviour
                         straight_base = check_chain[0];
                     }
                 }
-                else 
+                else
                 {
                     straight_base = check_chain[0];
                 }
@@ -735,17 +741,17 @@ public class CardGameUI : MonoBehaviour
         {
             player_hand_temp2 = "Flush";
         }
-        else if (player_straight == true) 
+        else if (player_straight == true)
         {
-            if (chain == 7) 
+            if (chain == 7)
             {
                 straight_base = chain_list[2];
             }
-            else if (chain == 6) 
+            else if (chain == 6)
             {
                 straight_base = chain_list[1];
             }
-            else 
+            else
             {
                 straight_base = chain_list[0];
             }
@@ -791,7 +797,7 @@ public class CardGameUI : MonoBehaviour
         {
             player_hand_temp2 = "Straight Flush";
         }
-        else 
+        else
         {
             player_hand_temp2 = "Flush";
         }
@@ -819,7 +825,7 @@ public class CardGameUI : MonoBehaviour
                         {
                             player_win = true;
                         }
-                        else 
+                        else
                         {
                             dealer_win = true;
                         }
@@ -912,7 +918,7 @@ public class CardGameUI : MonoBehaviour
                                 dealer_win = true;
                             }
                         }
-                        else if (player_vals.Item2 > dealer_vals.Item2) 
+                        else if (player_vals.Item2 > dealer_vals.Item2)
                         {
                             player_win = true;
                         }
@@ -973,7 +979,7 @@ public class CardGameUI : MonoBehaviour
             Debug.Log("Dealer Wins!!  The winning hand was" + dealer_vals.Item1 + "max_val was " + dealer_vals.Item2 + "second val was " + dealer_vals.Item3+ "high card was" + dealer_vals.Item5);
             Debug.Log("Player Lost!!  The losing hand was" + player_vals.Item1 + "max_val was " + player_vals.Item2 + "second val was " + player_vals.Item3+ "high card was" + player_vals.Item5);
         }
-        else
+        else if (split)
         {
             win_loss.text = "Split Pot!! \n You drew with " + player_vals.Item1;
             win_loss_obj.SetActive(true);

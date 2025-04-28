@@ -27,6 +27,10 @@ public class InteractPrompt : MonoBehaviour
     }
 
     void OnTriggerExit() {
+      if (PlayerPrefs.GetInt("Shells", 1000) <= 0) {
+        PlayerPrefs.SetInt("Shells", 100);
+        PlayerPrefs.Save();
+      }
       interactPrompt.SetActive(false);
     }
 }

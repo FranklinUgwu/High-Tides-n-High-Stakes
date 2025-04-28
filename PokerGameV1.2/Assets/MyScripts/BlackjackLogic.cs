@@ -32,15 +32,17 @@ public class DeckManager : MonoBehaviour
     public Camera playerCam;
     public GameObject betScreen;
     public Slider bet;
+    public GameObject player;
     private int betValue;
 
     public void updateBet() {
+      currentCard = 0;
       betValue = (int)bet.value;
       betDisplay.text = betValue.ToString();
     }
 
     public void betConfirm()
-    { 
+    {
         waitingForPlayer = false;
     }
     public void Start()
@@ -57,6 +59,7 @@ public class DeckManager : MonoBehaviour
     }
     public void StartGame1()
     {
+        player.SetActive(false);
         StartCoroutine(StartGame2());
     }
     public IEnumerator StartGame2()
@@ -318,6 +321,11 @@ public class DeckManager : MonoBehaviour
     public void OnPlayerExit()
     {
         waitingForPlayer = false;
+        player.SetActive(true);
+        if (PlayerPrefs.GetInt("Shells", 1000) <= 0) {
+          PlayerPrefs.SetInt("Shells", 100);
+          PlayerPrefs.Save();
+        }
     }
     public void OnPlayerHit()
     {
